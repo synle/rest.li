@@ -15,7 +15,7 @@ and what APIs have changed, if applicable.
 ## [Unreleased]
 
 ## [29.30.0] - 2022-02-12
-support d2 config canary
+- Support d2 config canary
 
 ## [29.29.1] - 2022-02-10
 - Make DarkGateKeeper configurable for different dark clusters
