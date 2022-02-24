@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2012 LinkedIn Corp.
+   Copyright (c) 2022 LinkedIn Corp.
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -15,15 +15,17 @@
 */
 package com.linkedin.d2.balancer.clusterfailout;
 
-import com.linkedin.d2.balancer.LoadBalancerState;
-import com.linkedin.d2.balancer.LoadBalancerState.LoadBalancerStateListenerCallback;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+
+import com.linkedin.d2.balancer.LoadBalancerState;
+import com.linkedin.d2.balancer.LoadBalancerState.LoadBalancerStateListenerCallback;
 
 
 /**

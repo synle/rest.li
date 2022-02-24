@@ -16,12 +16,20 @@
 
 package com.linkedin.d2.balancer;
 
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import com.linkedin.common.callback.Callback;
 import com.linkedin.common.util.None;
-import com.linkedin.d2.balancer.clients.DegraderTrackerClient;
 import com.linkedin.d2.balancer.clients.DegraderTrackerClientImpl;
-import com.linkedin.d2.balancer.clients.TrackerClient;
 import com.linkedin.d2.balancer.clients.TestClient;
+import com.linkedin.d2.balancer.clients.TrackerClient;
+import com.linkedin.d2.balancer.properties.ClusterFailoutProperties;
 import com.linkedin.d2.balancer.properties.ClusterProperties;
 import com.linkedin.d2.balancer.properties.PartitionData;
 import com.linkedin.d2.balancer.properties.ServiceProperties;
@@ -33,14 +41,6 @@ import com.linkedin.d2.balancer.util.partitions.PartitionAccessor;
 import com.linkedin.d2.discovery.event.PropertyEventThread.PropertyEventShutdownCallback;
 import com.linkedin.r2.transport.common.bridge.client.TransportClient;
 import com.linkedin.util.clock.SystemClock;
-
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 public class LoadBalancerTestState implements LoadBalancerState
 {
@@ -75,6 +75,12 @@ public class LoadBalancerTestState implements LoadBalancerState
   {
     return (getClusterProperties)
         ? new LoadBalancerStateItem<>(new ClusterProperties("cluster-1"), 0, 0) : null;
+  }
+
+  @Override
+  public LoadBalancerStateItem<ClusterFailoutProperties> getClusterFailoutProperties(String clusterName)
+  {
+    return null;
   }
 
   @Override

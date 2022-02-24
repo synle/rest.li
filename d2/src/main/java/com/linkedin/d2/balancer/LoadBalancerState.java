@@ -16,9 +16,15 @@
 
 package com.linkedin.d2.balancer;
 
+import java.net.URI;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+
 import com.linkedin.common.callback.Callback;
 import com.linkedin.common.util.None;
 import com.linkedin.d2.balancer.clients.TrackerClient;
+import com.linkedin.d2.balancer.properties.ClusterFailoutProperties;
 import com.linkedin.d2.balancer.properties.ClusterProperties;
 import com.linkedin.d2.balancer.properties.ServiceProperties;
 import com.linkedin.d2.balancer.properties.UriProperties;
@@ -27,11 +33,6 @@ import com.linkedin.d2.balancer.subsetting.SubsettingState;
 import com.linkedin.d2.balancer.util.partitions.PartitionAccessor;
 import com.linkedin.d2.discovery.event.PropertyEventThread.PropertyEventShutdownCallback;
 import com.linkedin.r2.transport.common.bridge.client.TransportClient;
-
-import java.net.URI;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
 
 
 /**
@@ -79,6 +80,8 @@ public interface LoadBalancerState
   LoadBalancerStateItem<UriProperties> getUriProperties(String clusterName);
 
   LoadBalancerStateItem<ClusterProperties> getClusterProperties(String clusterName);
+
+  LoadBalancerStateItem<ClusterFailoutProperties> getClusterFailoutProperties(String clusterName);
 
   LoadBalancerStateItem<PartitionAccessor> getPartitionAccessor(String clusterName);
 

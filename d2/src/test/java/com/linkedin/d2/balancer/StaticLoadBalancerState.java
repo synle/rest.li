@@ -16,9 +16,20 @@
 
 package com.linkedin.d2.balancer;
 
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import com.linkedin.common.callback.Callback;
 import com.linkedin.common.util.None;
 import com.linkedin.d2.balancer.clients.TrackerClient;
+import com.linkedin.d2.balancer.properties.ClusterFailoutProperties;
 import com.linkedin.d2.balancer.properties.ClusterProperties;
 import com.linkedin.d2.balancer.properties.PartitionData;
 import com.linkedin.d2.balancer.properties.PartitionProperties;
@@ -31,15 +42,6 @@ import com.linkedin.d2.balancer.util.partitions.DefaultPartitionAccessor;
 import com.linkedin.d2.balancer.util.partitions.PartitionAccessor;
 import com.linkedin.d2.discovery.event.PropertyEventThread;
 import com.linkedin.r2.transport.common.bridge.client.TransportClient;
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 
 /**
@@ -165,6 +167,12 @@ public class StaticLoadBalancerState implements LoadBalancerState
   public LoadBalancerStateItem<ClusterProperties> getClusterProperties(String clusterName)
   {
     return new LoadBalancerStateItem<>(_clusterPropertie.get(clusterName), 1, 1);
+  }
+
+  @Override
+  public LoadBalancerStateItem<ClusterFailoutProperties> getClusterFailoutProperties(String clusterName)
+  {
+    return null;
   }
 
   @Override

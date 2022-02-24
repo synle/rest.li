@@ -17,6 +17,7 @@
 package com.linkedin.d2.balancer.simple;
 
 import com.linkedin.d2.balancer.LoadBalancerState;
+import com.linkedin.d2.balancer.LoadBalancerStateItem;
 import com.linkedin.d2.balancer.config.CanaryDistributionStrategyConverter;
 import com.linkedin.d2.balancer.properties.ClusterProperties;
 import com.linkedin.d2.balancer.properties.ClusterStoreProperties;
@@ -61,6 +62,11 @@ class ClusterLoadBalancerSubscriber extends
               .distribute(CanaryDistributionStrategyConverter.toConfig(clusterStoreProperties.getCanaryDistributionStrategy()));
         }
         pickedProperties = clusterStoreProperties.getDistributedClusterProperties(distribution);
+
+        _simpleLoadBalancerState.getClusterFailoutProperties().put(listenTo, new LoadBalancerStateItem<>(
+          clusterStoreProperties.getClusterFailoutProperties(),
+          _simpleLoadBalancerState.getVersionAccess().incrementAndGet(),
+          System.currentTimeMillis()));
       }
       // TODO: set canary/stable config metric
 

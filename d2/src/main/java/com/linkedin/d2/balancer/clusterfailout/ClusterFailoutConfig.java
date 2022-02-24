@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2012 LinkedIn Corp.
+   Copyright (c) 2022 LinkedIn Corp.
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -17,8 +17,8 @@ package com.linkedin.d2.balancer.clusterfailout;
 
 import java.util.Set;
 
-
-public interface ClusterFailoutConfig {
+public interface ClusterFailoutConfig
+{
   /**
    * Checks if this cluster is failed out.
    * A failout can be scheduled to stop at a future time. When this happens, we will still have an active failout
