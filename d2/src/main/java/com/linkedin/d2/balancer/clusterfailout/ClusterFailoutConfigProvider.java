@@ -17,11 +17,11 @@ package com.linkedin.d2.balancer.clusterfailout;
 
 import java.util.Optional;
 
-
 /**
  * Class responsible for providing cluster failout config for each cluster.
  */
-public interface ClusterFailoutConfigProvider<T extends ClusterFailoutConfig> {
+public interface ClusterFailoutConfigProvider<T extends ClusterFailoutConfig>
+{
   /**
    * Gets the failout config for a cluster.
    * @param clusterName The name of the cluster to get failout config for.

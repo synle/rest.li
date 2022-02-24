@@ -28,24 +28,26 @@ import com.linkedin.d2.balancer.LoadBalancerStateItem;
 import com.linkedin.d2.balancer.properties.ClusterFailoutProperties;
 import com.linkedin.d2.balancer.properties.ClusterStoreProperties;
 
-
 /**
  * Class responsible for providing cluster failout config for each cluster.
  */
-public abstract class ZKClusterFailoutConfigProvider<T extends ClusterFailoutConfig>
-    implements ClusterFailoutConfigProvider<T>, LoadBalancerClusterListener {
+public abstract class ZKClusterFailoutConfigProvider<T extends ClusterFailoutConfig> implements ClusterFailoutConfigProvider<T>, LoadBalancerClusterListener
+{
   private final Map<String, FailedoutClusterManager<T>> _failedoutClusters = new HashMap<>();
   private final LoadBalancerState _loadBalancerState;
 
-  public ZKClusterFailoutConfigProvider(@Nonnull LoadBalancerState loadBalancerState) {
+  public ZKClusterFailoutConfigProvider(@Nonnull LoadBalancerState loadBalancerState)
+  {
     _loadBalancerState = loadBalancerState;
   }
 
-  public void start() {
+  public void start()
+  {
     _loadBalancerState.registerClusterListener(this);
   }
 
-  public void stop() {
+  public void stop()
+  {
     _loadBalancerState.unregisterClusterListener(this);
   }
 
@@ -54,34 +56,40 @@ public abstract class ZKClusterFailoutConfigProvider<T extends ClusterFailoutCon
    * @param clusterFailoutProperties The properties defined for a cluster failout.
    * @return Parsed and processed config that's ready to be used for routing requests.
    */
-  public abstract @Nullable T createFailoutConfig(
-      @Nullable ClusterFailoutProperties clusterFailoutProperties);
+  public abstract @Nullable
+  T createFailoutConfig(@Nullable ClusterFailoutProperties clusterFailoutProperties);
 
   @Override
-  public Optional<T> getFailoutConfig(String clusterName) {
+  public Optional<T> getFailoutConfig(String clusterName)
+  {
     final FailedoutClusterManager<T> failedoutClusterManager = _failedoutClusters.get(clusterName);
-    if (failedoutClusterManager == null) {
+    if (failedoutClusterManager == null)
+    {
       return Optional.empty();
     }
     return failedoutClusterManager.getFailoutConfig();
   }
 
   @Override
-  public void onClusterAdded(String clusterName) {
+  public void onClusterAdded(String clusterName)
+  {
     LoadBalancerStateItem<ClusterFailoutProperties> item = _loadBalancerState.getClusterFailoutProperties(clusterName);
-    if (item != null) {
+    if (item != null)
+    {
       final ClusterFailoutProperties failoutProperties = item.getProperty();
 
       final T failoutConfig = createFailoutConfig(failoutProperties);
-      _failedoutClusters.computeIfAbsent(clusterName,
-          name -> new FailedoutClusterManager<>(clusterName, _loadBalancerState)).updateFailoutConfig(failoutConfig);
+      _failedoutClusters.computeIfAbsent(clusterName, name -> new FailedoutClusterManager<>(clusterName, _loadBalancerState))
+        .updateFailoutConfig(failoutConfig);
     }
   }
 
   @Override
-  public void onClusterRemoved(String clusterName) {
+  public void onClusterRemoved(String clusterName)
+  {
     FailedoutClusterManager<T> manager = _failedoutClusters.remove(clusterName);
-    if (manager != null) {
+    if (manager != null)
+    {
       manager.updateFailoutConfig(null);
     }
   }
