@@ -27,6 +27,8 @@ import javax.annotation.Nullable;
 import com.linkedin.d2.balancer.LoadBalancerState;
 import com.linkedin.d2.balancer.LoadBalancerState.LoadBalancerStateListenerCallback;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This class is responsible for managing a failed out cluster.
@@ -35,19 +37,22 @@ import com.linkedin.d2.balancer.LoadBalancerState.LoadBalancerStateListenerCallb
  * - Establishing connections to instances in the peer clusters.
  * - Managing failout config updates for the cluster.
  */
-public class FailedoutClusterManager<T extends ClusterFailoutConfig> {
+public class FailedoutClusterManager<T extends ClusterFailoutConfig>
+{
+  private static final Logger _log = LoggerFactory.getLogger(FailedoutClusterManager.class);
   private final String _clusterName;
   private final LoadBalancerState _loadBalancerState;
-  private final ConcurrentMap<String, LoadBalancerStateListenerCallback> _clusterListeners =
-      new ConcurrentHashMap<>();
+  private final ConcurrentMap<String, LoadBalancerStateListenerCallback> _clusterListeners = new ConcurrentHashMap<>();
   private T _failoutConfig;
 
-  public FailedoutClusterManager(@Nonnull String clusterName, @Nonnull LoadBalancerState loadBalancerState) {
+  public FailedoutClusterManager(@Nonnull String clusterName, @Nonnull LoadBalancerState loadBalancerState)
+  {
     _clusterName = clusterName;
     _loadBalancerState = loadBalancerState;
   }
 
-  public String getClusterName() {
+  public String getClusterName()
+  {
     return _clusterName;
   }
 
@@ -55,7 +60,8 @@ public class FailedoutClusterManager<T extends ClusterFailoutConfig> {
    * Gets the current failout config.
    * @return Optional.empty() when there is not failout config found.
    */
-  public Optional<T> getFailoutConfig() {
+  public Optional<T> getFailoutConfig()
+  {
     return Optional.ofNullable(_failoutConfig);
   }
 
@@ -63,20 +69,28 @@ public class FailedoutClusterManager<T extends ClusterFailoutConfig> {
    * Updates to a new failout config version.
    * @param failoutConfig The new failout config. Null when there is not active failout associated with the cluster.
    */
-  public void updateFailoutConfig(@Nullable T failoutConfig) {
-    if (failoutConfig == null) {
+  public void updateFailoutConfig(@Nullable T failoutConfig)
+  {
+    if (failoutConfig == null)
+    {
       removePeerClusterWatches();
-    } else {
+    }
+    else
+    {
       processNewConfig(failoutConfig);
     }
 
     _failoutConfig = failoutConfig;
   }
 
-  private void processNewConfig(@Nonnull T failoutConfig) {
-    if (!failoutConfig.isFailedOut()) {
+  private void processNewConfig(@Nonnull T failoutConfig)
+  {
+    if (!failoutConfig.isFailedOut())
+    {
       removePeerClusterWatches();
-    } else {
+    }
+    else
+    {
       Set<String> peerClusters = failoutConfig.getPeerClusters();
       addPeerClusterWatches(peerClusters);
     }
@@ -86,10 +100,12 @@ public class FailedoutClusterManager<T extends ClusterFailoutConfig> {
    * Calle this method when a cluster is failed out and/or its new peer clusters are identified.
    * @param newPeerClusters Name of the peer clusters of the failed out clusters
    */
-  void addPeerClusterWatches(@Nonnull Set<String> newPeerClusters) {
+  void addPeerClusterWatches(@Nonnull Set<String> newPeerClusters)
+  {
     final Set<String> existingPeerClusters = _clusterListeners.keySet();
 
-    if (newPeerClusters.isEmpty()) {
+    if (newPeerClusters.isEmpty())
+    {
       removePeerClusterWatches();
       return;
     }
@@ -97,14 +113,16 @@ public class FailedoutClusterManager<T extends ClusterFailoutConfig> {
     final Set<String> peerClustersToAdd = new HashSet<>(newPeerClusters);
     peerClustersToAdd.removeAll(existingPeerClusters);
 
-    if (!peerClustersToAdd.isEmpty()) {
+    if (!peerClustersToAdd.isEmpty())
+    {
       addClusterWatches(peerClustersToAdd);
     }
 
     final Set<String> peerClustersToRemove = new HashSet<>(existingPeerClusters);
     peerClustersToRemove.removeAll(newPeerClusters);
 
-    if (!peerClustersToRemove.isEmpty()) {
+    if (!peerClustersToRemove.isEmpty())
+    {
       removeClusterWatches(peerClustersToRemove);
     }
   }
@@ -112,12 +130,19 @@ public class FailedoutClusterManager<T extends ClusterFailoutConfig> {
   /**
    * Call this method when a cluster failed out is over and we do not need to monitor its peer clusters.
    */
-  void removePeerClusterWatches() {
+  void removePeerClusterWatches()
+  {
     removeClusterWatches(_clusterListeners.keySet());
   }
 
-  private void addClusterWatches(@Nonnull Set<String> clustersToWatch) {
-    for (final String cluster : clustersToWatch) {
+  private void addClusterWatches(@Nonnull Set<String> clustersToWatch)
+  {
+    if (_log.isDebugEnabled())
+    {
+      _log.debug("Watching peer clusters: " + String.join(",", clustersToWatch));
+    }
+    for (final String cluster : clustersToWatch)
+    {
       _clusterListeners.computeIfAbsent(cluster, clusterName -> {
         // TODO(RESILIEN-50): Establish connections to peer clusters when listener#done() is invoked.
         LoadBalancerStateListenerCallback listener = new LoadBalancerState.NullStateListenerCallback();
@@ -127,10 +152,17 @@ public class FailedoutClusterManager<T extends ClusterFailoutConfig> {
     }
   }
 
-  private void removeClusterWatches(@Nonnull Set<String> clustersToRemove) {
-    for (String cluster : clustersToRemove) {
+  private void removeClusterWatches(@Nonnull Set<String> clustersToRemove)
+  {
+    if (_log.isDebugEnabled())
+    {
+      _log.debug("Removing peer clusters: " + String.join(",", clustersToRemove));
+    }
+    for (String cluster : clustersToRemove)
+    {
       final LoadBalancerStateListenerCallback listener = _clusterListeners.remove(cluster);
-      if (listener != null) {
+      if (listener != null)
+      {
         // TODO(RESILIEN-51): Unregister watches when failout is over
       }
     }
