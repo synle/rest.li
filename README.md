@@ -180,6 +180,18 @@ curl http://localhost:7279/photos
 ```
 
 
+```java
+private void getAllPhotos(PrintWriter respWriter, long newPhotoId) throws RemoteInvocationException
+{
+  final GetAllRequest<Photo> getAllReq = _photoBuilders.getAll().build();
+  final CollectionResponse<Photo> crPhotos = _restClient.sendRequest(getAllReq).getResponse().getEntity();
+  final List<Photo> photos = crPhotos.getElements();
+
+  respWriter.println("Get All Photo: " + photos.toString());
+}
+```
+
+
 ##### More notes
 An annotated get method may also have arbitrary query params added:
 
@@ -190,16 +202,57 @@ public GetResult<V> get(K key, @QueryParam("viewerId") String viewerId);
 
 #### Batch Get
 
-
-Clients should make requests to a batch resource using buildKV() (not build(), it is deprecated), for example:
-
+```java
+// TODO
 ```
-new FortunesBuilders().batchGet().ids(...).buildKV();
+
+```bash
+# TODO
+```
+
+```json
+// TODO
+```
+
+
+```java
+// TODO
 ```
 
 #### Update full
 
+```java
+// TODO
+```
+
+```bash
+# TODO
+```
+
+```json
+// TODO
+```
+
+
+```java
+// TODO
+```
+
+
 #### Update Partial (Patch)
+
+
+```java
+// TODO
+```
+
+```bash
+# TODO
+```
+
+```json
+// TODO
+```
 
 ```java
 private void partialUpdatePhoto(PrintWriter respWriter, long photoId) throws RemoteInvocationException
@@ -219,6 +272,7 @@ private void partialUpdatePhoto(PrintWriter respWriter, long photoId) throws Rem
 ```
 
 #### Delete
+
 ```java
 @Override
 public UpdateResponse delete(Long key)
@@ -239,6 +293,10 @@ curl -X DELETE http://localhost:7279/photos/1
 
 ```bash
 HTTP/1.1 204 No Content
+```
+
+```json
+// TODO
 ```
 
 #### @Finder
@@ -287,6 +345,22 @@ curl http://localhost:7279/photos?q=titleAndOrFormat&format=PNG
 
 ```json
 {"elements":[{"urn":"1","format":"JPG","id":1,"title":"Photo 1","exif":{"location":{"latitude":-6.3178253,"longitude":57.696823}}},{"urn":"2","format":"JPG","id":2,"title":"Photo 2","exif":{"location":{"latitude":-5.5022736,"longitude":18.33355}}},{"urn":"3","format":"JPG","id":3,"title":"Photo 3","exif":{"location":{"latitude":84.11627,"longitude":-64.39552}}},{"urn":"4","format":"$UNKNOWN","id":4,"title":"Photo 4","exif":{"location":{"latitude":55.052383,"longitude":-7.9325027}}},{"urn":"5","format":"BMP","id":5,"title":"Photo 5","exif":{"location":{"latitude":-54.010677,"longitude":-60.018898}}},{"urn":"6","format":"PNG","id":6,"title":"Photo 6","exif":{"location":{"latitude":28.385742,"longitude":-71.32381}}},{"urn":"7","format":"JPG","id":7,"title":"Photo 7","exif":{"location":{"latitude":-15.153236,"longitude":-59.620316}}},{"urn":"8","format":"$UNKNOWN","id":8,"title":"Photo 8","exif":{"location":{"latitude":-83.43374,"longitude":77.27614}}},{"urn":"9","format":"BMP","id":9,"title":"Photo 9","exif":{"location":{"latitude":46.31407,"longitude":-84.41014}}},{"urn":"10","format":"JPG","id":10,"title":"Photo 10","exif":{"location":{"latitude":2.3792572,"longitude":36.30168}}}],"paging":{"count":10,"start":0,"links":[{"rel":"next","type":"application/json","href":"/photos?q=titleAndOrFormat&start=10&count=10"}]}}
+```
+
+```java
+private void findPhoto(PrintWriter respWriter) throws RemoteInvocationException
+{
+  final FindRequest<Photo> findReq = _photoBuilders
+      .findByTitleAndOrFormat()
+      .titleParam("Photo 1")
+      .formatParam("PNG")
+      .build();
+
+  final CollectionResponse<Photo> crPhotos = _restClient.sendRequest(findReq).getResponse().getEntity();
+  final List<Photo> photos = crPhotos.getElements();
+
+  respWriter.println("Found " + photos.size() + " photos with title " + photo.getTitle());
+}
 ```
 
 #### @BatchFinder
@@ -346,9 +420,13 @@ public BatchFinderResult<PhotoCriteria, Photo, NoMetadata> searchPhotos(@PagingC
 curl 'http://localhost:7279/photos?bq=searchPhotos&criteria=List((format:PNG))' --header 'X-RestLi-Protocol-Version: 2.0.0'
 ```
 
+```java
+// TODO
+```
 
 #### Custom action name
 These custom actions need to be sent as a post (`-X POST`)
+
 ```java
 @Action(name = "purge", resourceLevel = ResourceLevel.COLLECTION)
 public int purge()

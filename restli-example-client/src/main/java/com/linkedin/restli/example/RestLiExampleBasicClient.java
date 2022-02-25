@@ -27,6 +27,7 @@ import com.linkedin.r2.transport.common.bridge.client.TransportClientAdapter;
 import com.linkedin.r2.transport.http.client.HttpClientFactory;
 import com.linkedin.restli.client.FindRequest;
 import com.linkedin.restli.client.Request;
+import com.linkedin.restli.client.GetAllRequest;
 import com.linkedin.restli.client.Response;
 import com.linkedin.restli.client.ResponseFuture;
 import com.linkedin.restli.client.RestClient;
@@ -112,6 +113,7 @@ public class RestLiExampleBasicClient
           final CountDownLatch latch = new CountDownLatch(1);
           createPhotoAsync(respWriter, latch, newPhotoId);
           getPhoto(respWriter, newPhotoId);
+          getAllPhotos(respWriter, newPhotoId);
           findPhoto(respWriter);
           partialUpdatePhoto(respWriter, newPhotoId);
           // photos and albums have IDs starting from 1
@@ -313,6 +315,16 @@ public class RestLiExampleBasicClient
     final Response<Photo> getResp = getFuture.getResponse();
     respWriter.println("Photo: " + getResp.getEntity().toString());
   }
+
+  private void getAllPhotos(PrintWriter respWriter, long newPhotoId) throws RemoteInvocationException
+  {
+    final GetAllRequest<Photo> getAllReq = _photoBuilders.getAll().build();
+    final CollectionResponse<Photo> crPhotos = _restClient.sendRequest(getAllReq).getResponse().getEntity();
+    final List<Photo> photos = crPhotos.getElements();
+
+    respWriter.println("Get All Photo: " + photos.toString());
+  }
+
 
   /**
    * call action purge to delete all photos on server
