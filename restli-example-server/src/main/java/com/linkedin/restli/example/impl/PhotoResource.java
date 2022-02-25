@@ -94,12 +94,15 @@ public class PhotoResource extends CollectionResourceTemplate<Long, Photo>
   @Override
   public Photo get(Long key)
   {
+    System.out.println("\n\n>>>> get was called:" + key);
     return _db.getData().get(key);
   }
 
   @Override
   public BatchResult<Long, Photo> batchGet(Set<Long> ids)
   {
+    System.out.println("\n\n>>>> batchGet:" + ids);
+
     Map<Long, Photo> result = new HashMap<>();
     Map<Long, RestLiServiceException> errors =
         new HashMap<>();
@@ -124,6 +127,9 @@ public class PhotoResource extends CollectionResourceTemplate<Long, Photo>
   @Override
   public UpdateResponse update(Long key, Photo entity)
   {
+    System.out.println("\n\n>>>> update was called:" + key + ". " + entity);
+
+
     final Photo currPhoto = _db.getData().get(key);
     if (currPhoto == null)
     {
@@ -148,6 +154,8 @@ public class PhotoResource extends CollectionResourceTemplate<Long, Photo>
   @Override
   public UpdateResponse delete(Long key)
   {
+    System.out.println("\n\n>>>> delete was called:" + key);
+
     final boolean isRemoved = (_db.getData().remove(key) != null);
 
     // Remove this photo from all albums to maintain referential integrity.
@@ -161,6 +169,8 @@ public class PhotoResource extends CollectionResourceTemplate<Long, Photo>
   @Override
   public UpdateResponse update(Long key, PatchRequest<Photo> patchRequest)
   {
+    System.out.println("\n\n>>>> partial update (patch) was called:" + key + ". " + patchRequest);
+
     final Photo p = _db.getData().get(key);
     if (p == null)
     {
@@ -190,6 +200,8 @@ public class PhotoResource extends CollectionResourceTemplate<Long, Photo>
                           @QueryParam("title") @Optional String title,
                           @QueryParam("format") @Optional PhotoFormats format)
   {
+    System.out.println("\n\n>>>> @Finder (titleAndOrFormat) was called:" + pagingContext + ". title=" + title + ". format="+format);
+
     final List<Photo> photos = new ArrayList<>();
     int index = 0;
     final int begin = pagingContext.getStart();
@@ -221,7 +233,9 @@ public class PhotoResource extends CollectionResourceTemplate<Long, Photo>
   public BatchFinderResult<PhotoCriteria, Photo, NoMetadata> searchPhotos(@PagingContextParam PagingContext pagingContext,
       @QueryParam("criteria") PhotoCriteria[] criteria, @QueryParam("exif") @Optional EXIF exif)
   {
-     BatchFinderResult<PhotoCriteria, Photo, NoMetadata> batchFinderResult = new BatchFinderResult<>();
+    System.out.println("\n\n>>>> @BatchFinder (searchPhotos - criteria) was called:" + pagingContext + ". criteria=" + criteria);
+
+    BatchFinderResult<PhotoCriteria, Photo, NoMetadata> batchFinderResult = new BatchFinderResult<>();
 
     for (PhotoCriteria currentCriteria: criteria) {
       if (currentCriteria.getTitle() != null) {
@@ -268,10 +282,13 @@ public class PhotoResource extends CollectionResourceTemplate<Long, Photo>
   @Action(name = "purge", resourceLevel = ResourceLevel.COLLECTION)
   public int purge()
   {
+    System.out.println("\n\n>>>> Purged was called:");
+
     final int numPurged = _db.getData().size();
     _db.getData().clear();
 
     AlbumEntryResource.purge(_entryDb, null, null);
+
     return numPurged;
   }
 

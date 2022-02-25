@@ -1,45 +1,127 @@
-<p align="center">
-  <img src="https://github.com/linkedin/rest.li/wiki/restli-logo-white-small.png"/>
-</p>
+# Sy Notes
+Sy's notes for Linkedin restli.
 
-Rest.li is an open source REST framework for building robust, scalable RESTful
-architectures using type-safe bindings and asynchronous, non-blocking IO. Rest.li
-fills a niche for applying RESTful principles at scale with an end-to-end developer
-workflow for building REST APIs, which promotes clean REST practices, uniform
-interface design and consistent data modeling.
+## Getting started
+https://linkedin.github.io/rest.li/get_started/quick_start
 
-<p align="center"><a href="https://github.com/linkedin/rest.li">Source</a> | <a href="https://rest.li">Documentation</a> | <a href="https://www.linkedin.com/groups/4855943/">Discussion Group</a></p>
 
-Features
---------
+## Requirements
+```
+>>> java -version
+openjdk version "1.8.0_322"
+OpenJDK Runtime Environment (Zulu 8.60.0.21-CA-linux64) (build 1.8.0_322-b06)
+OpenJDK 64-Bit Server VM (Zulu 8.60.0.21-CA-linux64) (build 25.322-b06, mixed mode)
+```
 
-* [End-to-end framework](https://linkedin.github.io/rest.li/user_guide/server_architecture#development-flow) for building RESTful APIs
-* Approachable APIs for writing non-blocking client and server code using [ParSeq](https://github.com/linkedin/parseq)
-* Type-safe development using generated data and client bindings
-* [JAX-RS](http://en.wikipedia.org/wiki/Java_API_for_RESTful_Web_Services) inspired annotation driven server side resource development
-* Engineered and battle tested for high scalability and high availability
-* Optional [Dynamic Discovery](https://linkedin.github.io/rest.li/Dynamic_Discovery) subsystem adds client side load balancing and fault tolerance
-* Backward compatibility checking to ensure all API changes are safe
-* Support for batch operations, partial updates and projections
-* [Web UI](https://github.com/linkedin/rest.li-api-hub) for browsing and searching a catalog of rest.li APIs.
+## Setting it up
+```
+# download it
+cd /opt
+sudo curl -o zulu8.60.0.21-ca-jdk8.0.322-linux_x64.tar.gz https://cdn.azul.com/zulu/bin/zulu8.60.0.21-ca-jdk8.0.322-linux_x64.tar.gz
 
-Website
--------
-[https://rest.li](https://rest.li)
+# unzip it
+sudo tar -xvf zulu8.60.0.21-ca-jdk8.0.322-linux_x64.tar.gz
 
-Documentation
--------------
+# add it to your path file ~/.bashrc
+PATH="$PATH:/opt/zulu8.60.0.21-ca-jdk8.0.322-linux_x64/bin"
+```
 
-See our [website](https://rest.li) for full documentation and examples.
 
-Community
----------
-* Discussion Group: [LinkedIn Rest.li Group](https://www.linkedin.com/groups/4855943/)
-* Follow us on Twitter: [@rest_li](https://twitter.com/rest_li)
-* Issue Tracking: [GitHub issue tracking](https://github.com/linkedin/rest.li/issues)
+## Example commands
+### Starting the server
+https://github.com/synle/rest.li/blob/master/restli-example-server/src/main/java/com/linkedin/restli/example/RestLiExampleBasicServer.java
 
-Quickstart Guides and Examples
-------------------------------
+```
+./gradlew startExampleBasicServer
+```
 
-* [Quickstart - a step-by-step tutorial on the basics](https://linkedin.github.io/rest.li/start/step_by_step)
-* [Guided walkthrough of an example application](https://linkedin.github.io/rest.li/get_started/quick_start)
+### Starting the client
+https://github.com/synle/rest.li/blob/master/restli-example-client/src/main/java/com/linkedin/restli/example/RestLiExampleBasicClient.java
+
+```
+./gradlew startExampleBasicClient
+```
+
+
+### Sample code and notes
+
+Resource file is located here: https://github.com/synle/rest.li/blob/master/restli-example-server/src/main/java/com/linkedin/restli/example/impl/PhotoResource.java
+
+Documentation regarding the resource can be found at https://linkedin.github.io/rest.li/user_guide/restli_server
+
+#### Get by ID
+
+```
+...
+@Override
+public Photo get(Long key)
+{
+  return _db.getData().get(key);
+}
+...
+```
+
+
+```
+curl http://localhost:7279/photos/1
+```
+
+```
+{"urn":"1","format":"JPG","id":1,"title":"Photo 1","exif":{"location":{"latitude":66.7151,"longitude":-77.66235}}}
+```
+
+
+#### Batch Get
+
+#### Update full
+
+#### Update Partial (Patch)
+
+#### Delete
+```
+@Override
+public UpdateResponse delete(Long key)
+{
+  final boolean isRemoved = (_db.getData().remove(key) != null);
+
+  // Remove this photo from all albums to maintain referential integrity.
+  AlbumEntryResource.purge(_entryDb, null, key);
+
+  return new UpdateResponse(isRemoved ? HttpStatus.S_204_NO_CONTENT
+      : HttpStatus.S_404_NOT_FOUND);
+}
+```
+
+```
+curl -X DELETE http://localhost:7279/photos/1
+```
+
+```
+HTTP/1.1 204 No Content
+```
+
+#### Finder
+
+#### Batch Finder
+
+#### Custom action name
+These custom actions need to be sent as a post (`-X POST`)
+```
+@Action(name = "purge", resourceLevel = ResourceLevel.COLLECTION)
+public int purge()
+{
+  final int numPurged = _db.getData().size();
+  _db.getData().clear();
+
+  AlbumEntryResource.purge(_entryDb, null, null);
+  return numPurged;
+}
+```
+
+```
+curl -X POST "http://localhost:7279/photos?action=purge"
+```
+
+```
+{"value":0}
+```
