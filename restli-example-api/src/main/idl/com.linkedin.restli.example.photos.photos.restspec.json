@@ -9,7 +9,7 @@
       "name" : "photosId",
       "type" : "long"
     },
-    "supports" : [ "batch_get", "create", "delete", "get", "partial_update", "update" ],
+    "supports" : [ "batch_get", "create", "delete", "get", "get_all", "partial_update", "update" ],
     "methods" : [ {
       "method" : "create"
     }, {
@@ -22,6 +22,9 @@
       "method" : "delete"
     }, {
       "method" : "batch_get"
+    }, {
+      "method" : "get_all",
+      "pagingSupported" : true
     } ],
     "finders" : [ {
       "name" : "titleAndOrFormat",
