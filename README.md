@@ -1,9 +1,42 @@
 # Sy Notes
 Sy's notes for Linkedin restli.
 
-## Getting started
-https://linkedin.github.io/rest.li/get_started/quick_start
 
+## Getting started
+- https://linkedin.github.io/rest.li/get_started/quick_start
+
+
+### Remote Debugging
+Refer to [this stackoverflow for more information about remote debugging](Source: https://stackoverflow.com/questions/37702073/gradle-remote-debugging-process)
+
+- Note The `"suspend=y"` part will pause the execution for you to attach a debugger.
+- Start the server as usual but add the following param, so the command will look like this:
+```
+./gradlew startExampleBasicServer -Dorg.gradle.jvmargs='-Xdebug -Xrunjdwp:transport=dt_socket,server=y,address=5005,suspend=y'
+```
+
+Then in your InteliJ, add this configuration:
+
+Use `Remote JVM Debug` and add this into the command line argument
+`-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005`
+![image](https://user-images.githubusercontent.com/3792401/155806095-ce429e57-cd6b-4d91-b421-521be5301c83.png)
+
+
+VS Code Configuration
+```
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "java",
+      "name": "Remote Debugger Attach",
+      "request": "attach",
+      "hostName": "localhost",
+      "port": "5005"
+    }
+  ]
+}
+```
 
 ## Requirements
 ```
