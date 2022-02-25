@@ -145,7 +145,7 @@ HTTP/1.1 204 No Content
 
 #### @Finder
 
-Note that here we used the query string `q` to indicate the finder name. In this case `@Finder("titleAndOrFormat")` will need a query strign `q=titleAndOrFormat`
+- Note that here we used the query string `q` to indicate the finder name. In this case `@Finder("titleAndOrFormat")` will need a query strign `q=titleAndOrFormat`
 
 ```
 @Finder("titleAndOrFormat")
@@ -193,6 +193,60 @@ curl http://localhost:7279/photos?q=titleAndOrFormat&format=PNG
 
 #### @BatchFinder
 
+- [More information on batchfinder here](https://linkedin.github.io/rest.li/batch_finder_resource_method#resource-api)
+
+
+```
+@BatchFinder(value = "searchPhotos", batchParam = "criteria")
+public BatchFinderResult<PhotoCriteria, Photo, NoMetadata> searchPhotos(@PagingContextParam PagingContext pagingContext,
+    @QueryParam("criteria") PhotoCriteria[] criteria, @QueryParam("exif") @Optional EXIF exif)
+{
+  System.out.println("\n\n>>>> @BatchFinder (searchPhotos - criteria) was called:" + pagingContext + ". criteria=" + criteria);
+
+  BatchFinderResult<PhotoCriteria, Photo, NoMetadata> batchFinderResult = new BatchFinderResult<>();
+
+  for (PhotoCriteria currentCriteria: criteria) {
+    if (currentCriteria.getTitle() != null) {
+      // on success
+      final List<Photo> photos = new ArrayList<>();
+      int index = 0;
+      final int begin = pagingContext.getStart();
+      final int end = begin + pagingContext.getCount();
+      final Collection<Photo> dbPhotos = _db.getData().values();
+      for (Photo p : dbPhotos)
+      {
+        if (index == end)
+        {
+          break;
+        }
+        else if (index >= begin)
+        {
+          if (p.getTitle().equalsIgnoreCase(currentCriteria.getTitle()))
+          {
+            if (currentCriteria.getFormat() == null || currentCriteria.getFormat() == p.getFormat())
+            {
+              photos.add(p);
+            }
+          }
+        }
+
+        index++;
+      }
+      CollectionResult<Photo, NoMetadata> cr = new CollectionResult<>(photos, photos.size());
+      batchFinderResult.putResult(currentCriteria, cr);
+    } else {
+      // on error: to construct error response for test
+      batchFinderResult.putError(currentCriteria, new RestLiServiceException(HttpStatus.S_404_NOT_FOUND, "Failed to find Photo!"));
+    }
+  }
+
+  return batchFinderResult;
+}
+```
+
+```
+curl 'http://localhost:7279/photos?bq=searchPhotos&criteria=List((format:PNG))' --header 'X-RestLi-Protocol-Version: 2.0.0'
+```
 
 
 #### Custom action name
