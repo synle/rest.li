@@ -84,6 +84,38 @@ https://github.com/synle/rest.li/blob/master/restli-example-client/src/main/java
 ./gradlew startExampleBasicClient
 ```
 
+### Basic java client code
+For java client code, [refer to this sample client code in java for more information about java client code](https://github.com/synle/rest.li/blob/master/restli-example-client/src/main/java/com/linkedin/restli/example/RestLiExampleBasicClient.java). Essentially, we need to initiate
+
+```java
+import import com.linkedin.restli.example.photos.PhotosRequestBuilders;
+import com.linkedin.restli.client.RestClient;
+
+//...
+// this can be used to generate the request
+private static final PhotosRequestBuilders _photoBuilders          = new PhotosRequestBuilders();
+
+// this used to make the actual rest client call
+private final RestClient _restClient;
+
+//...
+// This section of the code initialize the rest client
+public static void main(String[] args) throws Exception
+{
+  final StringBuilder serverUrlBuilder = new StringBuilder("http://").append(SERVER_HOSTNAME).append(":").append(SERVER_PORT).append("/");
+  final RestClient restClient = new RestClient(r2Client, serverUrlBuilder.toString());
+  //...
+}
+
+// here's a sample way to call the rest client
+private void getNonPhoto() throws RemoteInvocationException
+{
+  final Request<Photo> failReq = _photoBuilders.get().id(-1L).build();
+  final ResponseFuture<Photo> failFuture = _restClient.sendRequest(failReq);
+  final Response<Photo> failResponse = failFuture.getResponse();
+}
+```
+
 
 ### Sample code and notes
 
@@ -92,15 +124,6 @@ https://github.com/synle/rest.li/blob/master/restli-example-client/src/main/java
 - Note that the snapshot is generated automatically by code
 `rest.li/restli-example-api/src/main/snapshot/com.linkedin.restli.example.photos.photos.snapshot.json`
 - All of these calls can be async. Just wrap the result into Task. So it's `Task<Map<K, V>>` instead of `Map<K, V>`
-
-For the sample client code in java, refer to this file. Essentially, we need to initiate
-
-```java
-import import com.linkedin.restli.example.photos.PhotosRequestBuilders;
-...
-private static final PhotosRequestBuilders _photoBuilders          = new PhotosRequestBuilders();
-```
-
 
 #### Get by ID
 
@@ -177,6 +200,23 @@ new FortunesBuilders().batchGet().ids(...).buildKV();
 #### Update full
 
 #### Update Partial (Patch)
+
+```java
+private void partialUpdatePhoto(PrintWriter respWriter, long photoId) throws RemoteInvocationException
+{
+  final Request<Photo> getReq = _photoBuilders.get().id(photoId).build();
+  final ResponseFuture<Photo> getFuture = _restClient.sendRequest(getReq);
+  final Response<Photo> getResp = getFuture.getResponse();
+  final Photo originalPhoto = getResp.getEntity();
+
+  final Photo updatedPhoto = new Photo().setTitle("Partially Updated Photo");
+  final PatchRequest<Photo> patch = PatchGenerator.diff(originalPhoto, updatedPhoto);
+
+  final Request<EmptyRecord> partialUpdateRequest = _photoBuilders.partialUpdate().id(photoId).input(patch).build();
+  final int status = _restClient.sendRequest(partialUpdateRequest).getResponse().getStatus();
+  respWriter.println("Partial update photo is successful: " + (status == 202));
+}
+```
 
 #### Delete
 ```java
