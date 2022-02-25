@@ -15,6 +15,15 @@ Refer to [this stackoverflow for more information about remote debugging](Source
 ./gradlew startExampleBasicServer -Dorg.gradle.jvmargs='-Xdebug -Xrunjdwp:transport=dt_socket,server=y,address=5005,suspend=y'
 ```
 
+```
+./gradlew startExampleBasicClient -Dorg.gradle.jvmargs='-Xdebug -Xrunjdwp:transport=dt_socket,server=y,address=5007,suspend=y'
+```
+
+or in the `~/.gradle/gradle.properties`
+```
+org.gradle.jvmargs=-Xdebug -Xrunjdwp:transport=dt_socket,server=y,address=5005,suspend=y
+```
+
 Then in your InteliJ, add this configuration:
 
 Use `Remote JVM Debug` and add this into the command line argument
