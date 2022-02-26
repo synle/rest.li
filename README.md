@@ -276,19 +276,42 @@ private void getAllPhotos(PrintWriter respWriter) throws RemoteInvocationExcepti
 ##### Sample Server Java Code
 
 ```java
-// TODO
+@Override
+public BatchResult<Long, Photo> batchGet(Set<Long> ids)
+{
+  System.out.println("\n\n>>>> batchGet:" + ids);
+
+  Map<Long, Photo> result = new HashMap<>();
+  Map<Long, RestLiServiceException> errors =
+      new HashMap<>();
+
+  for (Long key : ids)
+  {
+    if (get(key) != null)
+    {
+      result.put(key, get(key));
+    }
+    else
+    {
+      errors.put(key, new RestLiServiceException(HttpStatus.S_404_NOT_FOUND,
+                                                 "No photo with id=" + key
+                                                     + " has been found."));
+    }
+  }
+  return new BatchResult<>(result, errors);
+}
 ```
 
 ##### Sample Curl Call
 
 ```bash
-# TODO
+curl http://localhost:7279/photos?ids=1&ids=2
 ```
 
 ##### Sample Server Response
 
 ```json
-{ "TODO": "TODO" }
+{"statuses":{},"results":{"1":{"urn":"1","format":"JPG","id":1,"title":"Photo 1","exif":{"location":{"latitude":46.466614,"longitude":-65.46433}}},"2":{"urn":"2","format":"$UNKNOWN","id":2,"title":"Photo 2","exif":{"location":{"latitude":66.07602,"longitude":64.918015}}}},"errors":{}}
 ```
 
 ##### Sample Client Java Code
