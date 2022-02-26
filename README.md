@@ -271,15 +271,6 @@ private void getAllPhotos(PrintWriter respWriter) throws RemoteInvocationExcepti
 }
 ```
 
-##### More notes
-
-An annotated get method may also have arbitrary query params added:
-
-```
-@RestMethod.Get
-public GetResult<V> get(K key, @QueryParam("viewerId") String viewerId);
-```
-
 #### Batch Get
 
 ##### Sample Server Java Code
@@ -512,66 +503,7 @@ curl http://localhost:7279/photos?q=titleAndOrFormat&format=PNG
       "title": "Photo 2",
       "exif": { "location": { "latitude": -5.5022736, "longitude": 18.33355 } }
     },
-    {
-      "urn": "3",
-      "format": "JPG",
-      "id": 3,
-      "title": "Photo 3",
-      "exif": { "location": { "latitude": 84.11627, "longitude": -64.39552 } }
-    },
-    {
-      "urn": "4",
-      "format": "$UNKNOWN",
-      "id": 4,
-      "title": "Photo 4",
-      "exif": { "location": { "latitude": 55.052383, "longitude": -7.9325027 } }
-    },
-    {
-      "urn": "5",
-      "format": "BMP",
-      "id": 5,
-      "title": "Photo 5",
-      "exif": {
-        "location": { "latitude": -54.010677, "longitude": -60.018898 }
-      }
-    },
-    {
-      "urn": "6",
-      "format": "PNG",
-      "id": 6,
-      "title": "Photo 6",
-      "exif": { "location": { "latitude": 28.385742, "longitude": -71.32381 } }
-    },
-    {
-      "urn": "7",
-      "format": "JPG",
-      "id": 7,
-      "title": "Photo 7",
-      "exif": {
-        "location": { "latitude": -15.153236, "longitude": -59.620316 }
-      }
-    },
-    {
-      "urn": "8",
-      "format": "$UNKNOWN",
-      "id": 8,
-      "title": "Photo 8",
-      "exif": { "location": { "latitude": -83.43374, "longitude": 77.27614 } }
-    },
-    {
-      "urn": "9",
-      "format": "BMP",
-      "id": 9,
-      "title": "Photo 9",
-      "exif": { "location": { "latitude": 46.31407, "longitude": -84.41014 } }
-    },
-    {
-      "urn": "10",
-      "format": "JPG",
-      "id": 10,
-      "title": "Photo 10",
-      "exif": { "location": { "latitude": 2.3792572, "longitude": 36.30168 } }
-    }
+    ... truncated for readability ...
   ],
   "paging": {
     "count": 10,
@@ -608,6 +540,7 @@ private void findPhoto(PrintWriter respWriter) throws RemoteInvocationException
 #### @BatchFinder
 
 - [More information on batchfinder here](https://linkedin.github.io/rest.li/batch_finder_resource_method#resource-api)
+- Note that here we used the query string `bq` to indicate the batch finder name and `criteria` for the list of search filter. In this case `@BatchFinder(value = "searchPhotos", batchParam = "criteria")` will need two query strings `bq=searchPhotos` and `criteria=List((format:PNG))`.
 
 ##### Sample Server Java Code
 
