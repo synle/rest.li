@@ -371,13 +371,17 @@ public UpdateResponse update(Long key, Photo entity)
 ##### Sample Curl Call
 
 ```bash
-# TODO
+curl -X PUT 'http://localhost:7279/photos/1' \
+-H 'Content-Type: application/javascript' \
+-d '{
+    "title": "Photo 1a new name"
+}'
 ```
 
 ##### Sample Server Response
 
-```json
-{ "TODO": "TODO" }
+```bash
+HTTP/1.1 204 No Content
 ```
 
 ##### Sample Client Java Code
