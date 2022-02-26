@@ -28,6 +28,7 @@ import com.linkedin.r2.transport.http.client.HttpClientFactory;
 import com.linkedin.restli.client.FindRequest;
 import com.linkedin.restli.client.GetAllRequest;
 import com.linkedin.restli.client.DeleteRequest;
+import com.linkedin.restli.client.BatchGetEntityRequest;
 import com.linkedin.restli.client.Request;
 import com.linkedin.restli.client.Response;
 import com.linkedin.restli.client.ResponseFuture;
@@ -40,6 +41,8 @@ import com.linkedin.restli.common.PatchRequest;
 import com.linkedin.restli.example.photos.AlbumEntryRequestBuilders;
 import com.linkedin.restli.example.photos.AlbumsRequestBuilders;
 import com.linkedin.restli.example.photos.PhotosRequestBuilders;
+import com.linkedin.restli.common.EntityResponse;
+import com.linkedin.restli.client.response.BatchKVResponse;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -116,6 +119,7 @@ public class RestLiExampleBasicClient
           createPhotoAsync(respWriter, latch, newPhotoId);
           getPhoto(respWriter, newPhotoId);
           getAllPhotos(respWriter);
+          batchGetAllPhotos(respWriter);
           deletePhoto(respWriter);
           findPhoto(respWriter);
           partialUpdatePhoto(respWriter, newPhotoId);
@@ -328,8 +332,17 @@ public class RestLiExampleBasicClient
     respWriter.println("Get All Photo: " + photos.toString());
   }
 
+  private void batchGetAllPhotos(PrintWriter respWriter) throws RemoteInvocationException
+  {
+    final BatchGetEntityRequest<Long, Photo> batchGetReq = _photoBuilders.batchGet().ids(1L).ids(2L).ids(3L).build();
+    BatchKVResponse<Long,EntityResponse<Photo>> photoResponse = _restClient.sendRequest(batchGetReq).getResponse().getEntity();
+    Map<Long, EntityResponse<Photo>> results = photoResponse.getResults();
+
+    respWriter.println("Batch Get Photo: " + photoResponse.toString());
+  }
+
   private void deletePhoto(PrintWriter respWriter) throws RemoteInvocationException {
-    final DeleteRequest<Photo> deleteRequest = _photoBuilders.delete().id(2L).build();
+    final DeleteRequest<Photo> deleteRequest = _photoBuilders.delete().id(5L).build();
     final int status = _restClient.sendRequest(deleteRequest).getResponse().getStatus();
     respWriter.println("Delete Photo: StatusCode=" + status);
   }

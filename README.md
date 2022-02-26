@@ -317,6 +317,10 @@ curl http://localhost:7279/photos?ids=1&ids=2
 ##### Sample Client Java Code
 
 ```java
+import com.linkedin.restli.client.BatchGetEntityRequest;
+import com.linkedin.restli.common.EntityResponse;
+import com.linkedin.restli.client.response.BatchKVResponse;
+
 // TODO
 ```
 
