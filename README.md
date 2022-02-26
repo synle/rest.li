@@ -21,6 +21,7 @@ Refer to [this stackoverflow for more information about remote debugging](Source
 
 or in the `~/.gradle/gradle.properties`
 ```
+org.gradle.daemon=false
 org.gradle.jvmargs=-Xdebug -Xrunjdwp:transport=dt_socket,server=y,address=5005,suspend=y
 ```
 
@@ -93,7 +94,7 @@ import com.linkedin.restli.client.RestClient;
 
 //...
 // this can be used to generate the request
-private static final PhotosRequestBuilders _photoBuilders          = new PhotosRequestBuilders();
+private static final PhotosRequestBuilders _photoBuilders = new PhotosRequestBuilders();
 
 // this used to make the actual rest client call
 private final RestClient _restClient;
@@ -235,7 +236,18 @@ public GetResult<V> get(K key, @QueryParam("viewerId") String viewerId);
 
 
 ```java
-// TODO
+private void createPhotoAsync(final PrintWriter respWriter, final CountDownLatch latch, final long newPhotoId)
+{
+  // this resembles to photo-create-id.json
+  final LatLong newLatLong = new LatLong().setLatitude(40.725f).setLongitude(-74.005f);
+  final EXIF newExif = new EXIF().setIsFlash(false).setLocation(newLatLong);
+  final Photo newPhoto = new Photo().setTitle("Updated Photo").setFormat(PhotoFormats.JPG).setExif(newExif);
+
+  final Request<EmptyRecord> createReq2 = _photoBuilders.update().id(newPhotoId).input(newPhoto).build();
+
+  // send request with callback
+  _restClient.sendRequest(createReq2);
+}
 ```
 
 
@@ -257,14 +269,17 @@ public GetResult<V> get(K key, @QueryParam("viewerId") String viewerId);
 ```java
 private void partialUpdatePhoto(PrintWriter respWriter, long photoId) throws RemoteInvocationException
 {
+  // get the original photo
   final Request<Photo> getReq = _photoBuilders.get().id(photoId).build();
   final ResponseFuture<Photo> getFuture = _restClient.sendRequest(getReq);
   final Response<Photo> getResp = getFuture.getResponse();
   final Photo originalPhoto = getResp.getEntity();
 
+  // make a partial change and generate the diff
   final Photo updatedPhoto = new Photo().setTitle("Partially Updated Photo");
   final PatchRequest<Photo> patch = PatchGenerator.diff(originalPhoto, updatedPhoto);
 
+  // send update request
   final Request<EmptyRecord> partialUpdateRequest = _photoBuilders.partialUpdate().id(photoId).input(patch).build();
   final int status = _restClient.sendRequest(partialUpdateRequest).getResponse().getStatus();
   respWriter.println("Partial update photo is successful: " + (status == 202));

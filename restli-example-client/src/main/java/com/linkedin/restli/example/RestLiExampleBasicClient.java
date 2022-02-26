@@ -330,10 +330,7 @@ public class RestLiExampleBasicClient
 
   private void deletePhoto(PrintWriter respWriter) throws RemoteInvocationException {
     final GetAllRequest<Photo> deleteRequest = _photoBuilders.delete().id(2).build();
-    final CollectionResponse<Photo> crPhotos = _restClient.sendRequest(deleteRequest).getResponse().getEntity();
-    final List<Photo> photos = crPhotos.getElements();
-
-    respWriter.println("Get All Photo: " + photos.toString());
+    final int status = _restClient.sendRequest(deleteRequest).getResponse().getStatus();
   }
 
 
@@ -402,8 +399,6 @@ public class RestLiExampleBasicClient
     final ResponseFuture<Photo> getFuture = _restClient.sendRequest(getReq);
     final Response<Photo> getResp = getFuture.getResponse();
     final Photo photo = getResp.getEntity();
-
-    _photoBuilders.
 
     final FindRequest<Photo> findReq = _photoBuilders
         .findByTitleAndOrFormat()
