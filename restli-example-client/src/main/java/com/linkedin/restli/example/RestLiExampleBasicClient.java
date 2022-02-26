@@ -17,18 +17,7 @@
 package com.linkedin.restli.example;
 
 
-import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Random;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-
-import javax.security.auth.callback.Callback;
-import javax.xml.ws.Response;
-
+import com.linkedin.common.callback.Callback;
 import com.linkedin.common.callback.FutureCallback;
 import com.linkedin.common.util.None;
 import com.linkedin.r2.RemoteInvocationException;
@@ -38,6 +27,9 @@ import com.linkedin.r2.transport.common.bridge.client.TransportClientAdapter;
 import com.linkedin.r2.transport.http.client.HttpClientFactory;
 import com.linkedin.restli.client.FindRequest;
 import com.linkedin.restli.client.GetAllRequest;
+import com.linkedin.restli.client.DeleteRequest;
+import com.linkedin.restli.client.Request;
+import com.linkedin.restli.client.Response;
 import com.linkedin.restli.client.ResponseFuture;
 import com.linkedin.restli.client.RestClient;
 import com.linkedin.restli.client.util.PatchGenerator;
@@ -49,7 +41,15 @@ import com.linkedin.restli.example.photos.AlbumEntryRequestBuilders;
 import com.linkedin.restli.example.photos.AlbumsRequestBuilders;
 import com.linkedin.restli.example.photos.PhotosRequestBuilders;
 
-import org.omg.CORBA.Request;
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Random;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+
 
 
 /**
@@ -319,7 +319,7 @@ public class RestLiExampleBasicClient
     respWriter.println("Photo: " + getResp.getEntity().toString());
   }
 
-  private void getAllPhotos(PrintWriter respWriter, long newPhotoId) throws RemoteInvocationException
+  private void getAllPhotos(PrintWriter respWriter) throws RemoteInvocationException
   {
     final GetAllRequest<Photo> getAllReq = _photoBuilders.getAll().build();
     final CollectionResponse<Photo> crPhotos = _restClient.sendRequest(getAllReq).getResponse().getEntity();
@@ -329,8 +329,9 @@ public class RestLiExampleBasicClient
   }
 
   private void deletePhoto(PrintWriter respWriter) throws RemoteInvocationException {
-    final GetAllRequest<Photo> deleteRequest = _photoBuilders.delete().id(2).build();
+    final DeleteRequest<Photo> deleteRequest = _photoBuilders.delete().id(2L).build();
     final int status = _restClient.sendRequest(deleteRequest).getResponse().getStatus();
+    respWriter.println("Delete Photo: StatusCode=" + status);
   }
 
 
