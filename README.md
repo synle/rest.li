@@ -320,8 +320,20 @@ curl http://localhost:7279/photos?ids=1&ids=2
 import com.linkedin.restli.client.BatchGetEntityRequest;
 import com.linkedin.restli.common.EntityResponse;
 import com.linkedin.restli.client.response.BatchKVResponse;
+import java.util.Map;
 
-// TODO
+private void batchGetAllPhotos(PrintWriter respWriter) throws RemoteInvocationException
+{
+  final BatchGetEntityRequest<Long, Photo> batchGetReq = _photoBuilders.batchGet().ids(1L).ids(2L).ids(3L).build();
+  BatchKVResponse<Long,EntityResponse<Photo>> photoResponse = _restClient.sendRequest(batchGetReq).getResponse().getEntity();
+  Map<Long, EntityResponse<Photo>> results = photoResponse.getResults();
+
+  respWriter.println("Batch Get Photo: " + photoResponse.toString());
+
+  EntityResponse<Photo> firstItem = results.get(1L);
+  Photo firstPhoto = firstItem.getEntity();
+  respWriter.println("Batch Get Photo - first photo: " + firstPhoto);
+}
 ```
 
 #### Update full

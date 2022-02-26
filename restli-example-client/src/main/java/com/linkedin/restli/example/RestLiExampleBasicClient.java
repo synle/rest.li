@@ -52,7 +52,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-
+import java.util.Map;
 
 
 /**
@@ -339,6 +339,10 @@ public class RestLiExampleBasicClient
     Map<Long, EntityResponse<Photo>> results = photoResponse.getResults();
 
     respWriter.println("Batch Get Photo: " + photoResponse.toString());
+
+    EntityResponse<Photo> firstItem = results.get(1L);
+    Photo firstPhoto = firstItem.getEntity();
+    respWriter.println("Batch Get Photo - first photo: " + firstPhoto);
   }
 
   private void deletePhoto(PrintWriter respWriter) throws RemoteInvocationException {
