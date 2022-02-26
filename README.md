@@ -295,7 +295,7 @@ curl -X DELETE http://localhost:7279/photos/1
 HTTP/1.1 204 No Content
 ```
 
-```json
+```java
 // TODO
 ```
 
@@ -446,7 +446,6 @@ curl -X POST "http://localhost:7279/photos?action=purge"
 ```json
 {"value":0}
 ```
-
 
 ```java
 // call action purge to delete all photos on server

@@ -17,7 +17,18 @@
 package com.linkedin.restli.example;
 
 
-import com.linkedin.common.callback.Callback;
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Random;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+
+import javax.security.auth.callback.Callback;
+import javax.xml.ws.Response;
+
 import com.linkedin.common.callback.FutureCallback;
 import com.linkedin.common.util.None;
 import com.linkedin.r2.RemoteInvocationException;
@@ -26,9 +37,7 @@ import com.linkedin.r2.transport.common.bridge.client.TransportClient;
 import com.linkedin.r2.transport.common.bridge.client.TransportClientAdapter;
 import com.linkedin.r2.transport.http.client.HttpClientFactory;
 import com.linkedin.restli.client.FindRequest;
-import com.linkedin.restli.client.Request;
 import com.linkedin.restli.client.GetAllRequest;
-import com.linkedin.restli.client.Response;
 import com.linkedin.restli.client.ResponseFuture;
 import com.linkedin.restli.client.RestClient;
 import com.linkedin.restli.client.util.PatchGenerator;
@@ -40,14 +49,7 @@ import com.linkedin.restli.example.photos.AlbumEntryRequestBuilders;
 import com.linkedin.restli.example.photos.AlbumsRequestBuilders;
 import com.linkedin.restli.example.photos.PhotosRequestBuilders;
 
-import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Random;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
+import org.omg.CORBA.Request;
 
 
 /**
@@ -113,7 +115,8 @@ public class RestLiExampleBasicClient
           final CountDownLatch latch = new CountDownLatch(1);
           createPhotoAsync(respWriter, latch, newPhotoId);
           getPhoto(respWriter, newPhotoId);
-          getAllPhotos(respWriter, newPhotoId);
+          getAllPhotos(respWriter);
+          deletePhoto(respWriter);
           findPhoto(respWriter);
           partialUpdatePhoto(respWriter, newPhotoId);
           // photos and albums have IDs starting from 1
@@ -325,6 +328,14 @@ public class RestLiExampleBasicClient
     respWriter.println("Get All Photo: " + photos.toString());
   }
 
+  private void deletePhoto(PrintWriter respWriter) throws RemoteInvocationException {
+    final GetAllRequest<Photo> deleteRequest = _photoBuilders.delete().id(2).build();
+    final CollectionResponse<Photo> crPhotos = _restClient.sendRequest(deleteRequest).getResponse().getEntity();
+    final List<Photo> photos = crPhotos.getElements();
+
+    respWriter.println("Get All Photo: " + photos.toString());
+  }
+
 
   /**
    * call action purge to delete all photos on server
@@ -336,6 +347,8 @@ public class RestLiExampleBasicClient
     final Response<Integer> purgeResp = purgeFuture.getResponse();
     respWriter.println("Purged " + purgeResp.getEntity() + " photos");
   }
+
+
 
   /**
    * retrieve album
@@ -389,6 +402,8 @@ public class RestLiExampleBasicClient
     final ResponseFuture<Photo> getFuture = _restClient.sendRequest(getReq);
     final Response<Photo> getResp = getFuture.getResponse();
     final Photo photo = getResp.getEntity();
+
+    _photoBuilders.
 
     final FindRequest<Photo> findReq = _photoBuilders
         .findByTitleAndOrFormat()
