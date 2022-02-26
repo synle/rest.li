@@ -18,7 +18,7 @@ Refer to [this stackoverflow for more information about remote debugging](Source
 ```
 
 ```
-./gradlew startExampleBasicClient -Dorg.gradle.jvmargs='-Xdebug -Xrunjdwp:transport=dt_socket,server=y,address=5007,suspend=y'
+./gradlew startExampleBasicClient -Dorg.gradle.jvmargs='-Xdebug -Xrunjdwp:transport=dt_socket,server=y,address=5005,suspend=y'
 ```
 
 or in the `~/.gradle/gradle.properties`
@@ -34,7 +34,7 @@ Use `Remote JVM Debug` and add this into the command line argument
 `-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005`
 ![image](https://user-images.githubusercontent.com/3792401/155806095-ce429e57-cd6b-4d91-b421-521be5301c83.png)
 
-##### Sample Server Response
+##### Sample VS Code Launch Config
 
 ```json
 {
@@ -145,7 +145,6 @@ public Photo get(Long key)
 {
   return _db.getData().get(key);
 }
-...
 ```
 
 ##### Sample Curl Call
@@ -404,19 +403,46 @@ private void createPhotoAsync(final PrintWriter respWriter, final CountDownLatch
 #### Update Partial (Patch)
 
 ```java
-// TODO
+@Override
+public UpdateResponse update(Long key, PatchRequest<Photo> patchRequest)
+{
+  System.out.println("\n\n>>>> partial update (patch) was called:" + key + ". " + patchRequest);
+
+  final Photo p = _db.getData().get(key);
+  if (p == null)
+  {
+    return new UpdateResponse(HttpStatus.S_404_NOT_FOUND);
+  }
+
+  try
+  {
+    PatchApplier.applyPatch(p, patchRequest);
+  }
+  catch (DataProcessingException e)
+  {
+    return new UpdateResponse(HttpStatus.S_400_BAD_REQUEST);
+  }
+  // photo's id and URN should not be changed
+  p.setId(key);
+  p.setUrn(String.valueOf(key));
+  _db.getData().put(key, p);
+
+  return new UpdateResponse(HttpStatus.S_202_ACCEPTED);
+}
 ```
 
 ##### Sample Curl Call
 
 ```bash
-# TODO
+curl -X POST 'http://localhost:7279/photos/1' \
+-H 'Content-Type: application/javascript' \
+-d '{ "patch": { "$set": { "title": "Photo 1a with partial update name" } } }}'
 ```
 
 ##### Sample Server Response
 
-```json
-{ "TODO": "TODO" }
+```bash
+HTTP/1.1 202 Accepted
 ```
 
 ##### Sample Client Java Code
@@ -638,13 +664,13 @@ public BatchFinderResult<PhotoCriteria, Photo, NoMetadata> searchPhotos(@PagingC
 ##### Sample Curl Call
 
 ```bash
-curl 'http://localhost:7279/photos?bq=searchPhotos&criteria=List((format:PNG))' --header 'X-RestLi-Protocol-Version: 2.0.0'
+curl 'http://localhost:7279/photos?bq=searchPhotos&criteria=List((format:JPG,title:Photo 2))&exif=()' --header 'X-RestLi-Protocol-Version: 2.0.0'
 ```
 
 ##### Sample Server Response
 
 ```json
-{ "TODO": "TODO" }
+{"elements":[{"elements":[{"urn":"2","format":"JPG","id":2,"title":"Photo 2","exif":{"location":{"latitude":32.323845,"longitude":-84.49606}}}],"paging":{"count":10,"start":0,"total":1,"links":[]}}]}
 ```
 
 ##### Sample Client Java Code
