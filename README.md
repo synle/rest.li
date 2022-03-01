@@ -97,7 +97,7 @@ https://github.com/synle/rest.li/blob/master/restli-example-client/src/main/java
 For java client code, [refer to this sample client code in java for more information about java client code](https://github.com/synle/rest.li/blob/master/restli-example-client/src/main/java/com/linkedin/restli/example/RestLiExampleBasicClient.java). Essentially, we need to initiate
 
 ```java
-import import com.linkedin.restli.example.photos.PhotosRequestBuilders;
+import com.linkedin.restli.example.photos.PhotosRequestBuilders;
 import com.linkedin.restli.client.RestClient;
 
 //...
